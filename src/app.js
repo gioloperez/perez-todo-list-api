@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const userRoutes = require('./routes/user.routes');
+const taskRoutes = require('./routes/task.routes');
 
 app.use(express.json());
 
@@ -8,6 +8,6 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: 'Server is running' });
   });
 
-app.use('/api/users', userRoutes);
+app.use(taskRoutes);
 
 module.exports = app;
