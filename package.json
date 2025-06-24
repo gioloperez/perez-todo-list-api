@@ -1,7 +1,7 @@
 {
-  "name": "gioloperez-base-node-app",
+  "name": "perez-todo-list-api",
   "version": "1.0.0",
-  "description": "A cleanly structured Node.js app",
+  "description": "TODO List API",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
