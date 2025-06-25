@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   FOREIGN KEY (list_id) REFERENCES lists(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_tasks_list_id ON tasks(list_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_position ON tasks(position);
+CREATE INDEX IF NOT EXISTS idx_tasks_list_position ON tasks(list_id, position);
 `);
+
+console.log('Migration successful!')
