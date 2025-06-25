@@ -1,5 +1,10 @@
 const db = require('../db');
 
+function findById(taskId) {
+  const query = db.prepare(`SELECT * FROM tasks WHERE id = ?`);
+  return query.get(taskId);
+}
+
 function findTasksByListId(listId, limit = 100, offset = 0) {
   const query = db.prepare(`
     SELECT id, title, position
@@ -29,9 +34,20 @@ function createTask(listId, title, position) {
   const result = query.run(listId, title, position);
   return { id: result.lastInsertRowid, listId, title, position };
 }
- 
+
+function updateTask(taskId, title, position) {
+  const query = db.prepare(`
+    UPDATE tasks
+    SET title = ?, position = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `);
+  return query.run(title, position, taskId);
+}
+
 module.exports = {
+  findById,
   findTasksByListId,
   findLastTaskInList,
   createTask,
+  updateTask,
 };

@@ -24,8 +24,39 @@ function createTask(listId, title) {
   return TaskRepo.createTask(listId, title, newPosition);
 }
 
+function updateTask(taskId, updates) {
+  const task = TaskRepo.findById(taskId);
+  if (!task) throw new Error('TASK_NOT_FOUND');
+
+  let newTitle = updates.title !== undefined ? updates.title.trim() : task.title;
+  let newPosition = task.position;
+
+  if (updates.beforeTaskId || updates.afterTaskId) {
+    const before = updates.beforeTaskId ? TaskRepo.findById(parseInt(updates.beforeTaskId)) : null;
+    const after = updates.afterTaskId ? TaskRepo.findById(parseInt(updates.afterTaskId)) : null;
+
+    if(before && after) {
+      newPosition = (before.position + after.position) / 2;
+    } else if (before) {
+      newPosition = before.position + 1000;
+    } else if (after) {
+      newPosition = after.position - 1000;
+    } else {
+      // Do nothing, keep old position
+    }
+  }
+
+  TaskRepo.updateTask(taskId, newTitle, newPosition);
+
+  return {
+    ...task,
+    title: newTitle,
+    position: newPosition,
+  };
+}
+
 module.exports = {
   getTasksByListId,
   createTask,
+  updateTask,
 }
-  
