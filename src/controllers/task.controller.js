@@ -15,9 +15,10 @@ function getTasksByListId(req, res) {
   } catch (err) {
     console.error(err);
     if (err.message === 'LIST_NOT_FOUND') {
-      return res.status(404).json({ error: 'List not found' });
+      res.status(404).json({ error: 'List not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
     }
-    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -39,9 +40,10 @@ function createTask(req, res) {
   } catch (err) {
     console.error(err);
     if (err.message === 'LIST_NOT_FOUND') {
-      return res.status(404).json({ error: 'List not found' });
+      res.status(404).json({ error: 'List not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
     }
-    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
@@ -70,9 +72,26 @@ function updateTask(req, res) {
   } catch (err) {
     console.error(err);
     if (err.message === 'TASK_NOT_FOUND') {
-      return res.status(404).json({ error: 'Task not found' });
+      res.status(404).json({ error: 'Task not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
     }
-    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+function deleteTask(req, res) {
+  const taskId = parseInt(req.params.taskId);
+
+  try {
+    taskService.deleteTask(taskId);
+    res.status(204).send();
+  } catch (err) {
+    console.log(err);
+    if (err.message === 'TASK_NOT_FOUND') {
+      res.status(404).json({ error: 'Task not found' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 }
 
@@ -80,4 +99,5 @@ module.exports = {
   getTasksByListId,
   createTask,
   updateTask,
+  deleteTask,
 }

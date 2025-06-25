@@ -66,6 +66,11 @@ function updateTask(taskId, title, position) {
   return query.run(title, position, taskId);
 }
 
+function deleteTask(taskId) {
+  const query = db.prepare(`DELETE FROM tasks WHERE id = ?`);
+  return query.run(taskId);
+}
+
 module.exports = {
   findById,
   findTasksByListId,
@@ -74,4 +79,5 @@ module.exports = {
   findPreviousTask,
   createTask,
   updateTask,
+  deleteTask,
 };
