@@ -26,6 +26,28 @@ function findLastTaskInList(listId) {
   return query.get(listId);
 }
 
+function findNextTask(listId, position) {
+  const query = db.prepare(`
+    SELECT *
+    FROM tasks
+    WHERE list_id = ? AND position > ?
+    ORDER BY position ASC
+    LIMIT 1
+  `);
+  return query.get(listId, position);
+}
+
+function findPreviousTask(listId, position) {
+  const query = db.prepare(`
+    SELECT *
+    FROM tasks
+    WHERE list_id = ? AND position < ?
+    ORDER BY position DESC
+    LIMIT 1
+  `);
+  return query.get(listId, position);
+}
+
 function createTask(listId, title, position) {
   const query = db.prepare(`
     INSERT INTO tasks (list_id, title, position)
@@ -48,6 +70,8 @@ module.exports = {
   findById,
   findTasksByListId,
   findLastTaskInList,
+  findNextTask,
+  findPreviousTask,
   createTask,
   updateTask,
 };

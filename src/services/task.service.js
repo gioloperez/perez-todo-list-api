@@ -38,9 +38,17 @@ function updateTask(taskId, updates) {
     if(before && after) {
       newPosition = (before.position + after.position) / 2;
     } else if (before) {
-      newPosition = before.position + 1000;
+      const next = TaskRepo.findNextTask(task.list_id, before.position);
+
+      newPosition = next
+        ? (before.position + next.position) / 2
+        : before.position + 1000;
     } else if (after) {
-      newPosition = after.position - 1000;
+      const previous = TaskRepo.findPreviousTask(task.list_id, after.position);
+
+      newPosition = previous
+        ? (previous.position + after.position) / 2
+        : after.position - 1000;
     } else {
       // Do nothing, keep old position
     }
@@ -48,11 +56,7 @@ function updateTask(taskId, updates) {
 
   TaskRepo.updateTask(taskId, newTitle, newPosition);
 
-  return {
-    ...task,
-    title: newTitle,
-    position: newPosition,
-  };
+  return TaskRepo.findById(taskId);
 }
 
 module.exports = {

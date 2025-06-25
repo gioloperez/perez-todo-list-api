@@ -17,7 +17,7 @@ function getTasksByListId(req, res) {
     if (err.message === 'LIST_NOT_FOUND') {
       return res.status(404).json({ error: 'List not found' });
     }
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -41,7 +41,7 @@ function createTask(req, res) {
     if (err.message === 'LIST_NOT_FOUND') {
       return res.status(404).json({ error: 'List not found' });
     }
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
@@ -72,7 +72,7 @@ function updateTask(req, res) {
     if (err.message === 'TASK_NOT_FOUND') {
       return res.status(404).json({ error: 'Task not found' });
     }
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
