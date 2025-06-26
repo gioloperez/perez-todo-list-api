@@ -28,7 +28,7 @@ function updateTask(taskId, updates) {
   const task = taskRepo.findById(taskId);
   if (!task) throw new Error('TASK_NOT_FOUND');
 
-  let newTitle = updates.title !== undefined ? updates.title.trim() : task.title;
+  let newTitle = updates.title !== undefined ? updates.title : task.title;
   let newPosition = task.position;
 
   if (updates.beforeTaskId || updates.afterTaskId) {

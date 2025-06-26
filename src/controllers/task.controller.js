@@ -34,8 +34,16 @@ function createTask(req, res) {
     return res.status(400).json({ error: 'Title is required and must be a string' });
   }
 
+  const trimmedTitle = title.trim();
+
+  if (trimmedTitle.length === 0 || trimmedTitle.length > 255) {
+    return res.status(400).json({
+      error: 'Title must be between 1 and 255 characters long',
+    });
+  }
+
   try {
-    const task = taskService.createTask(listId, title);
+    const task = taskService.createTask(listId, trimmedTitle);
     res.status(201).json(task);
   } catch (err) {
     console.error(err);
@@ -55,19 +63,37 @@ function updateTask(req, res) {
     return res.status(400).json({ error: 'Invalid taskId' });
   }
 
-  if (title !== undefined && typeof title !== 'string') {
-    return res.status(400).json({ error: 'Title must be a string' });
+  let trimmedTitle;
+
+  if (title !== undefined) {
+    if (typeof title !== 'string') {
+      return res.status(400).json({ error: 'Title must be a string' });
+    }
+
+    trimmedTitle = title.trim();
+    if (trimmedTitle.length === 0 || trimmedTitle.length > 255) {
+      return res.status(400).json({
+        error: 'Title must be between 1 and 255 characters long',
+      });
+    }
   }
 
   if (
     beforeTaskId !== undefined && isNaN(parseInt(beforeTaskId)) ||
     afterTaskId !== undefined && isNaN(parseInt(afterTaskId))
   ) {
-    return res.status(400).json({ error: 'beforeTaskId and afterTaskId must be valid numbers' });
+    return res.status(400).json({
+      error: 'beforeTaskId and afterTaskId must be valid numbers',
+    });
   }
 
   try {
-    const updatedTask = taskService.updateTask(taskId, { title, beforeTaskId, afterTaskId });
+    const updatedTask = taskService.updateTask(taskId, {
+      title: trimmedTitle,
+      beforeTaskId,
+      afterTaskId,
+    });
+
     res.status(200).json(updatedTask);
   } catch (err) {
     console.error(err);
