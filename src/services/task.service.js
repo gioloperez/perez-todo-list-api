@@ -25,36 +25,37 @@ function createTask(listId, title) {
 }
 
 function updateTask(taskId, updates) {
+  const MIN_POSITION_DIFFERENCE = 0.000001;
+
   const task = TaskRepo.findById(taskId);
   if (!task) throw new Error('TASK_NOT_FOUND');
 
   let newTitle = updates.title !== undefined ? updates.title : task.title;
   let newPosition = task.position;
 
-  if (updates.beforeTaskId || updates.afterTaskId) {
-    const before = updates.beforeTaskId ? TaskRepo.findById(parseInt(updates.beforeTaskId)) : null;
-    const after = updates.afterTaskId ? TaskRepo.findById(parseInt(updates.afterTaskId)) : null;
+  if (updates.afterTaskId !== undefined && parseInt(updates.afterTaskId) !== taskId) {
+    const afterTask = updates.afterTaskId
+      ? TaskRepo.findById(parseInt(updates.afterTaskId))
+      : null;
 
-    if(before && after) {
-      newPosition = (before.position + after.position) / 2;
-    } else if (before) {
-      const next = TaskRepo.findNextTask(task.list_id, before.position);
-
-      newPosition = next
-        ? (before.position + next.position) / 2
-        : before.position + 1000;
-    } else if (after) {
-      const previous = TaskRepo.findPreviousTask(task.list_id, after.position);
-
-      newPosition = previous
-        ? (previous.position + after.position) / 2
-        : after.position - 1000;
+    if (!afterTask) {
+      const lastTask = TaskRepo.findLastTaskInList(task.list_id);
+      newPosition = lastTask ? lastTask.position + 1000 : 1000;
     } else {
-      // Do nothing, keep old position
+      const nextTask = TaskRepo.findNextTask(task.list_id, afterTask.position);
+
+      newPosition = nextTask
+        ? (afterTask.position + nextTask.position) / 2
+        : afterTask.position + 1000;
     }
   }
 
-  TaskRepo.updateTask(taskId, newTitle, newPosition);
+  const positionChanged = Math.abs(newPosition - task.position) >= MIN_POSITION_DIFFERENCE;
+  const titleChanged = newTitle !== task.title;
+
+  if (positionChanged || titleChanged) {
+    TaskRepo.updateTask(taskId, newTitle, newPosition);
+  }
 
   return TaskRepo.findById(taskId);
 }
