@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const taskRoutes = require('./routes/task.routes');
+const TaskRoutes = require('./routes/task.routes');
 
 app.use(express.json());
 
@@ -8,6 +8,6 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: 'Server is running' });
   });
 
-app.use(taskRoutes);
+app.use(TaskRoutes);
 
 module.exports = app;

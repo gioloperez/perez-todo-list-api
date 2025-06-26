@@ -1,4 +1,4 @@
-const taskService = require('../services/task.service');
+const TaskService = require('../services/task.service');
 const { validateTitle, validateTaskIds } = require('../utils/validators/task.validator');
 
 function getTasksByListId(req, res) {
@@ -11,7 +11,7 @@ function getTasksByListId(req, res) {
   }
 
   try {
-    const tasks = taskService.getTasksByListId(listId, limit, offset);
+    const tasks = TaskService.getTasksByListId(listId, limit, offset);
     res.status(200).json(tasks);
   } catch (err) {
     console.error(err);
@@ -35,7 +35,7 @@ function createTask(req, res) {
   if (titleError) return res.status(400).json({ error: titleError });
 
   try {
-    const task = taskService.createTask(listId, title.trim());
+    const task = TaskService.createTask(listId, title.trim());
     res.status(201).json(task);
   } catch (err) {
     console.error(err);
@@ -64,7 +64,7 @@ function updateTask(req, res) {
   if (idError) return res.status(400).json({ error: idError });
 
   try {
-    const updatedTask = taskService.updateTask(taskId, {
+    const updatedTask = TaskService.updateTask(taskId, {
       title: title?.trim(),
       beforeTaskId,
       afterTaskId,
@@ -85,7 +85,7 @@ function deleteTask(req, res) {
   const taskId = parseInt(req.params.taskId);
 
   try {
-    taskService.deleteTask(taskId);
+    TaskService.deleteTask(taskId);
     res.status(204).send();
   } catch (err) {
     console.log(err);
