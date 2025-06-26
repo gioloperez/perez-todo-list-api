@@ -1,4 +1,5 @@
 const taskService = require('../services/task.service');
+const { validateTitle, validateTaskIds } = require('../utils/validators/task.validator');
 
 function getTasksByListId(req, res) {
   const listId = parseInt(req.params.listId);
@@ -30,20 +31,11 @@ function createTask(req, res) {
     return res.status(400).json({ error: 'Invalid listId' });
   }
 
-  if (!title || typeof title !== 'string') {
-    return res.status(400).json({ error: 'Title is required and must be a string' });
-  }
-
-  const trimmedTitle = title.trim();
-
-  if (trimmedTitle.length === 0 || trimmedTitle.length > 255) {
-    return res.status(400).json({
-      error: 'Title must be between 1 and 255 characters long',
-    });
-  }
+  const titleError = validateTitle(title, true);
+  if (titleError) return res.status(400).json({ error: titleError });
 
   try {
-    const task = taskService.createTask(listId, trimmedTitle);
+    const task = taskService.createTask(listId, title.trim());
     res.status(201).json(task);
   } catch (err) {
     console.error(err);
@@ -63,33 +55,17 @@ function updateTask(req, res) {
     return res.status(400).json({ error: 'Invalid taskId' });
   }
 
-  let trimmedTitle;
-
   if (title !== undefined) {
-    if (typeof title !== 'string') {
-      return res.status(400).json({ error: 'Title must be a string' });
-    }
-
-    trimmedTitle = title.trim();
-    if (trimmedTitle.length === 0 || trimmedTitle.length > 255) {
-      return res.status(400).json({
-        error: 'Title must be between 1 and 255 characters long',
-      });
-    }
+    const titleError = validateTitle(title);
+    if (titleError) return res.status(400).json({ error: titleError });
   }
 
-  if (
-    beforeTaskId !== undefined && isNaN(parseInt(beforeTaskId)) ||
-    afterTaskId !== undefined && isNaN(parseInt(afterTaskId))
-  ) {
-    return res.status(400).json({
-      error: 'beforeTaskId and afterTaskId must be valid numbers',
-    });
-  }
+  const idError = validateTaskIds(beforeTaskId, afterTaskId);
+  if (idError) return res.status(400).json({ error: idError });
 
   try {
     const updatedTask = taskService.updateTask(taskId, {
-      title: trimmedTitle,
+      title: title?.trim(),
       beforeTaskId,
       afterTaskId,
     });
