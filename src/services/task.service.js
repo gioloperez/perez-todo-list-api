@@ -25,13 +25,12 @@ function createTask(listId, title) {
 }
 
 function updateTask(taskId, updates) {
-  const MIN_POSITION_DIFFERENCE = 0.000001;
-
   const task = TaskRepo.findById(taskId);
   if (!task) throw new Error('TASK_NOT_FOUND');
 
   let newTitle = updates.title !== undefined ? updates.title : task.title;
   let newPosition = task.position;
+  let positionChanged = false;
 
   if (updates.afterTaskId !== undefined && parseInt(updates.afterTaskId) !== taskId) {
     const afterTask = updates.afterTaskId
@@ -40,17 +39,34 @@ function updateTask(taskId, updates) {
 
     if (!afterTask) {
       const lastTask = TaskRepo.findLastTaskInList(task.list_id);
-      newPosition = lastTask ? lastTask.position + 1000 : 1000;
+      const expectedPosition = lastTask ? lastTask.position + 1000 : 1000;
+
+      if (task.position !== expectedPosition) {
+        newPosition = expectedPosition;
+        positionChanged = true;
+      }
     } else {
       const nextTask = TaskRepo.findNextTask(task.list_id, afterTask.position);
 
-      newPosition = nextTask
-        ? (afterTask.position + nextTask.position) / 2
-        : afterTask.position + 1000;
+      // Guard clause: If task is already the "next" one, skip
+      if (nextTask && nextTask.id === task.id) {
+        // Do nothing
+      } else {
+        const afterPosition = afterTask.position;
+        const nextPosition  = nextTask ? nextTask.position : afterPosition + 2000;
+        const isOutOfPlace = !(task.position > afterPosition && task.position < nextPosition);
+
+        if (isOutOfPlace) {
+          newPosition = nextTask
+            ? (afterTask.position + nextTask.position) / 2
+            : afterTask.position + 1000;
+
+          positionChanged = true;
+        }
+      }
     }
   }
 
-  const positionChanged = Math.abs(newPosition - task.position) >= MIN_POSITION_DIFFERENCE;
   const titleChanged = newTitle !== task.title;
 
   if (positionChanged || titleChanged) {
